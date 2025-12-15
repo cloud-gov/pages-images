@@ -2,9 +2,6 @@ ARG base_image
 
 FROM ${base_image}
 
-ENV PYTHON_VERSION 3.11.9
-ENV GPG_KEY A035C8C19219BA821ECEA86B64E628F8D684696D
-
 # Set to skip prompt during USG audit
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -19,62 +16,130 @@ ENV LANG C.UTF-8
 RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
-	build-essential \
 	ca-certificates \
-	curl \
-	iptables \
-	libbluetooth-dev \
-	libncurses5-dev \
-	libgdbm-dev \
-	libnss3-dev \
-	libssl-dev \
-	libreadline-dev \
-	libffi-dev \
-	libsqlite3-dev \
-	libbz2-dev \
-	libpq-dev \
-	openssl \
-	tk-dev \
-	uuid-dev \
-	wget \
-	zlib1g-dev;
+	netbase \
+	tzdata \
+	; \
+	rm -rf /var/lib/apt/lists/*
 
-RUN wget -O python.tgz "https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz"; \
-	mkdir -p /usr/src/python; \
-	tar -xf python.tgz -C /usr/src/python; \
-	cd /usr/src/python/Python-${PYTHON_VERSION}; \
-	./configure --enable-optimizations; \
-	nproc="$(nproc)"; \
-	make -j "$nproc"; \
-	make install;
-
-# smoke test
-RUN python3 --version;
-
-# if this is called "PIP_VERSION", pip explodes with "ValueError: invalid truth value '<VERSION>'"
-ENV PYTHON_PIP_VERSION 24.2
-# https://github.com/docker-library/python/issues/365
-ENV PYTHON_SETUPTOOLS_VERSION 72.1.0
-# https://github.com/pypa/get-pip
-ENV PYTHON_GET_PIP_URL https://github.com/pypa/get-pip/raw/dbf0c85f76fb6e1ab42aa672ffca6f0a675d9ee4/public/get-pip.py
-ENV PYTHON_GET_PIP_SHA256 dfe9fd5c28dc98b5ac17979a953ea550cec37ae1b47a5116007395bfacff2ab9
+ENV PYTHON_VERSION 3.11.14
+ENV PYTHON_SHA256 8d3ed8ec5c88c1c95f5e558612a725450d2452813ddad5e58fdb1a53b1209b78
+ENV GPG_KEY A035C8C19219BA821ECEA86B64E628F8D684696D
 
 RUN set -eux; \
 	\
-	wget -O get-pip.py "$PYTHON_GET_PIP_URL"; \
-	echo "$PYTHON_GET_PIP_SHA256 *get-pip.py" | sha256sum -c -; \
+	savedAptMark="$(apt-mark showmanual)"; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends \
+	dpkg-dev \
+	gcc \
+	gnupg \
+	libbluetooth-dev \
+	libbz2-dev \
+	libc6-dev \
+	libdb-dev \
+	libffi-dev \
+	libgdbm-dev \
+	liblzma-dev \
+	libncursesw5-dev \
+	libreadline-dev \
+	libsqlite3-dev \
+	libssl-dev \
+	make \
+	tk-dev \
+	uuid-dev \
+	wget \
+	xz-utils \
+	zlib1g-dev \
+	; \
+	\
+	wget -O python.tar.xz "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz"; \
+	echo "$PYTHON_SHA256 *python.tar.xz" | sha256sum -c -; \
+	wget -O python.tar.xz.asc "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc"; \
+	GNUPGHOME="$(mktemp -d)"; export GNUPGHOME; \
+	gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$GPG_KEY"; \
+	gpg --batch --verify python.tar.xz.asc python.tar.xz; \
+	gpgconf --kill all; \
+	rm -rf "$GNUPGHOME" python.tar.xz.asc; \
+	mkdir -p /usr/src/python; \
+	tar --extract --directory /usr/src/python --strip-components=1 --file python.tar.xz; \
+	rm python.tar.xz; \
+	\
+	cd /usr/src/python; \
+	gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
+	./configure \
+	--build="$gnuArch" \
+	--enable-loadable-sqlite-extensions \
+	--enable-optimizations \
+	--enable-option-checking=fatal \
+	--enable-shared \
+	$(test "${gnuArch%%-*}" != 'riscv64' && echo '--with-lto') \
+	--with-ensurepip \
+	; \
+	nproc="$(nproc)"; \
+	EXTRA_CFLAGS="$(dpkg-buildflags --get CFLAGS)"; \
+	LDFLAGS="$(dpkg-buildflags --get LDFLAGS)"; \
+	LDFLAGS="${LDFLAGS:--Wl},--strip-all"; \
+	make -j "$nproc" \
+	"EXTRA_CFLAGS=${EXTRA_CFLAGS:-}" \
+	"LDFLAGS=${LDFLAGS:-}" \
+	; \
+	# https://github.com/docker-library/python/issues/784
+	# prevent accidental usage of a system installed libpython of the same version
+	rm python; \
+	make -j "$nproc" \
+	"EXTRA_CFLAGS=${EXTRA_CFLAGS:-}" \
+	"LDFLAGS=${LDFLAGS:--Wl},-rpath='\$\$ORIGIN/../lib'" \
+	python \
+	; \
+	make install; \
+	\
+	cd /; \
+	rm -rf /usr/src/python; \
+	\
+	find /usr/local -depth \
+	\( \
+	\( -type d -a \( -name test -o -name tests -o -name idle_test \) \) \
+	-o \( -type f -a \( -name '*.pyc' -o -name '*.pyo' -o -name 'libpython*.a' \) \) \
+	\) -exec rm -rf '{}' + \
+	; \
+	\
+	ldconfig; \
+	\
+	apt-mark auto '.*' > /dev/null; \
+	apt-mark manual $savedAptMark; \
+	find /usr/local -type f -executable -not \( -name '*tkinter*' \) -exec ldd '{}' ';' \
+	| awk '/=>/ { so = $(NF-1); if (index(so, "/usr/local/") == 1) { next }; gsub("^/(usr/)?", "", so); printf "*%s\n", so }' \
+	| sort -u \
+	| xargs -rt dpkg-query --search \
+	# https://manpages.debian.org/bookworm/dpkg/dpkg-query.1.en.html#S (we ignore diversions and it'll be really unusual for more than one package to provide any given .so file)
+	| awk 'sub(":$", "", $1) { print $1 }' \
+	| sort -u \
+	| xargs -r apt-mark manual \
+	; \
+	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+	rm -rf /var/lib/apt/lists/*; \
 	\
 	export PYTHONDONTWRITEBYTECODE=1; \
+	python3 --version; \
 	\
-	python3 get-pip.py \
+	pip3 install \
 	--disable-pip-version-check \
 	--no-cache-dir \
 	--no-compile \
-	"pip==$PYTHON_PIP_VERSION" \
-	"setuptools==$PYTHON_SETUPTOOLS_VERSION" \
+	'setuptools==79.0.1' \
+	# https://github.com/docker-library/python/issues/1023
+	'wheel<0.46' \
 	; \
-	rm -f get-pip.py; \
-	\
-	pip --version;
+	pip3 --version
+
+# make some useful symlinks that are expected to exist ("/usr/local/bin/python" and friends)
+RUN set -eux; \
+	for src in idle3 pip3 pydoc3 python3 python3-config; do \
+	dst="$(echo "$src" | tr -d 3)"; \
+	[ -s "/usr/local/bin/$src" ]; \
+	[ ! -e "/usr/local/bin/$dst" ]; \
+	ln -svT "$src" "/usr/local/bin/$dst"; \
+	done
 
 CMD ["python3"]
