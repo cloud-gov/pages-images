@@ -35,30 +35,30 @@ RUN set -eux; \
 # Default to UTF-8 file.encoding (maybe duplicating above)
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
-ENV JAVA_VERSION jdk-11.0.24+8
+ENV JAVA_VERSION jdk-11.0.29+7
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
     amd64) \
-    ESUM='e0c1938093da3780e4494d366a4e6b75584dde8d46a19acea6691ae11df4cda5'; \
-    BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.24%2B8/OpenJDK11U-jre_x64_linux_hotspot_11.0.24_8.tar.gz'; \
+    ESUM='97a4c089411868e24bf74a9789a819ae4164818316f8a3146460a102e8db6149'; \
+    BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.29%2B7/OpenJDK11U-jre_x64_linux_hotspot_11.0.29_7.tar.gz'; \
     ;; \
     arm64) \
-    ESUM='1fe97cdaad47d7d108f329c6e4560b46748ef7f2948a1027812ade0bbc2a3597'; \
-    BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.24%2B8/OpenJDK11U-jre_aarch64_linux_hotspot_11.0.24_8.tar.gz'; \
+    ESUM='8e4c0bb2488f8abd0379b660963ed981b1e136b975f3faf562e07cce81977700'; \
+    BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.29%2B7/OpenJDK11U-jre_aarch64_linux_hotspot_11.0.29_7.tar.gz'; \
     ;; \
     armhf) \
-    ESUM='bf893085627c6ec484e63aa1290276b23bcfee547459da6b0432ae9c5c1be22a'; \
-    BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.24%2B8/OpenJDK11U-jre_arm_linux_hotspot_11.0.24_8.tar.gz'; \
+    ESUM='93454a64c922111e57a86659e5fd6d44406173226cf051aa6228af06a7a44a56'; \
+    BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.29%2B7/OpenJDK11U-jre_arm_linux_hotspot_11.0.29_7.tar.gz'; \
     ;; \
     ppc64el) \
-    ESUM='8ee351314182df93fbad96139bb74b97814944d66197896e388404a1ecfa06b3'; \
-    BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.24%2B8/OpenJDK11U-jre_ppc64le_linux_hotspot_11.0.24_8.tar.gz'; \
+    ESUM='3d58318c01cc461809a8a9b15f3d52990c6e522f8a88c6b2c69dd4b57a613537'; \
+    BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.29%2B7/OpenJDK11U-jre_ppc64le_linux_hotspot_11.0.29_7.tar.gz'; \
     ;; \
     s390x) \
-    ESUM='5b331f093bb03126334bbbc24f05f60681baeda461d860e4e2cdb693ee54e0ed'; \
-    BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.24%2B8/OpenJDK11U-jre_s390x_linux_hotspot_11.0.24_8.tar.gz'; \
+    ESUM='8487926c19c505d7f2c3b33c352962fa0f26922f29d15d0599917acf8203a67b'; \
+    BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.29%2B7/OpenJDK11U-jre_s390x_linux_hotspot_11.0.29_7.tar.gz'; \
     ;; \
     *) \
     echo "Unsupported arch: ${ARCH}"; \
