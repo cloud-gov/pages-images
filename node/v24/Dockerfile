@@ -2,7 +2,7 @@ ARG base_image
 
 FROM ${base_image}
 
-ENV NODE_VERSION 22.20.0
+ENV NODE_VERSION 24.12.0
 ENV YARN_VERSION 1.22.22
 
 # Set to skip prompt during USG audit
