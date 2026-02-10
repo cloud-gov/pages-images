@@ -2,7 +2,7 @@ ARG base_image
 
 FROM ${base_image}
 
-ENV NODE_VERSION 24.12.0
+ENV NODE_VERSION 24.13.0
 ENV YARN_VERSION 1.22.22
 
 # Set to skip prompt during USG audit
@@ -47,9 +47,7 @@ RUN ARCH= OPENSSL_ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && export GNUPGHOME="$(mktemp -d)" \
   # gpg keys listed at https://github.com/nodejs/node#release-keys
   && for key in \
-  4ED778F539E3634C779C87C6D7062848A1AB005C \
-  141F07595B7B3FFE74309A937405533BE57C7D57 \
-  74F12602B6F1C4E913FAA37AD3A89613643B6201 \
+  5BE8A3F6C8A5C01D106C0AD820B1A390B168D356 \
   DD792F5973C6DE52C432CBDAC77ABFA00DDBF2B7 \
   CC68F5A3106FF448322E48ED27F5E38D5B0A215F \
   8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600 \
@@ -58,8 +56,8 @@ RUN ARCH= OPENSSL_ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   108F52B48DB57BB0CC439B2997B01419BD92F80A \
   A363A499291CBBC940DD62E41F10027AF002F8B0 \
   ; do \
-  gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
-  gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key" ; \
+  { gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" && gpg --batch --fingerprint "$key"; } || \
+  { gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key" && gpg --batch --fingerprint "$key"; } ; \
   done \
   && curl -fsSLO --compressed "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-$ARCH.tar.xz" \
   && curl -fsSLO --compressed "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" \
@@ -89,8 +87,8 @@ RUN savedAptMark="$(apt-mark showmanual)" \
   && for key in \
   6A010C5166006599AA17F08146C2130DFD2497F5 \
   ; do \
-  gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
-  gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key" ; \
+  { gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" && gpg --batch --fingerprint "$key"; } || \
+  { gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key" && gpg --batch --fingerprint "$key"; } ; \
   done \
   && curl -fsSLO --compressed "https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz" \
   && curl -fsSLO --compressed "https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz.asc" \
