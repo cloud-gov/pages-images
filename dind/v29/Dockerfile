@@ -9,9 +9,9 @@ FROM ${base_image}
 ENV DEBIAN_FRONTEND=noninteractive
 
 
-ENV DOCKER_COMPOSE_VERSION 5.1.3
-ENV DOCKER_VERSION 29.4.3
-ENV DOCKER_BUILDX_VERSION 0.34.0
+ENV DOCKER_COMPOSE_VERSION 5.2.0
+ENV DOCKER_VERSION 29.6.1
+ENV DOCKER_BUILDX_VERSION 0.35.0
 ENV DOCKER_TLS_CERTDIR=/certs
 # https://github.com/docker/docker/tree/master/hack/dind
 ENV DIND_COMMIT 8d9e3502aba39127e4d12196dae16d306f76993d
@@ -59,11 +59,11 @@ RUN set -eux; \
 	case "$sysArch" in \
 	'x86_64') \
 	url="https://github.com/docker/buildx/releases/download/v$DOCKER_BUILDX_VERSION/buildx-v$DOCKER_BUILDX_VERSION.linux-amd64"; \
-	sha256='0144479d5a1cd710be3464ae898628cfa68033e16b225aef52f81930c45ac9b5'; \
+	sha256='d41ece72044243b4f58b343441ae37446d9c29a7d6b5e11c61847bbcf8f7dfda'; \
 	;; \
 	'aarch64') \
 	url="https://github.com/docker/buildx/releases/download/v$DOCKER_BUILDX_VERSION/buildx-v$DOCKER_BUILDX_VERSION.linux-arm64"; \
-	sha256='565605fe0bb393ed5d11771e5b52fc7ef05c701868861fa85609747c9d74a440'; \
+	sha256='c4248d6cbc4a619a7e0b4609c11e509ad4ac0b475e1c64817c0ac20c5d90c766'; \
 	;; \
 	*) echo >&2 "warning: unsupported 'docker-buildx' architecture ($sysArch); skipping"; exit 0 ;; \
 	esac; \
@@ -84,11 +84,11 @@ RUN set -eux; \
 	case "$sysArch" in \
 	'x86_64') \
 	url="https://github.com/docker/compose/releases/download/v$DOCKER_COMPOSE_VERSION/docker-compose-linux-x86_64"; \
-	sha256='a0298760c9772d2c06888fc8703a487c94c3c3b0134adeef830742a2fc7647b4'; \
+	sha256='018f9612ecabc5f2d7aaa53d6f5f44453a87611e2d72c8ef84d7b1eca070e719'; \
 	;; \
 	'aarch64') \
 	url="https://github.com/docker/compose/releases/download/v$DOCKER_COMPOSE_VERSION/docker-compose-linux-aarch64"; \
-	sha256='e8105a3e687ea7e0b0f81abe4bf9269c8a2801fb72c2b498b5ff2472bc54145f'; \
+	sha256='739de570a0adf5eab12830db980f549fb5f44ad6b266e1e43e20f6f9df7cbcca'; \
 	;; \
 	*) echo >&2 "warning: unsupported 'docker-compose' architecture ($sysArch); skipping"; exit 0 ;; \
 	esac; \
