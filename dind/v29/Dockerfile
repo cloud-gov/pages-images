@@ -9,8 +9,8 @@ FROM ${base_image}
 ENV DEBIAN_FRONTEND=noninteractive
 
 
-ENV DOCKER_COMPOSE_VERSION 5.2.0
-ENV DOCKER_VERSION 29.6.1
+ENV DOCKER_COMPOSE_VERSION 5.3.1
+ENV DOCKER_VERSION 29.6.2
 ENV DOCKER_BUILDX_VERSION 0.35.0
 ENV DOCKER_TLS_CERTDIR=/certs
 # https://github.com/docker/docker/tree/master/hack/dind
@@ -84,11 +84,11 @@ RUN set -eux; \
 	case "$sysArch" in \
 	'x86_64') \
 	url="https://github.com/docker/compose/releases/download/v$DOCKER_COMPOSE_VERSION/docker-compose-linux-x86_64"; \
-	sha256='018f9612ecabc5f2d7aaa53d6f5f44453a87611e2d72c8ef84d7b1eca070e719'; \
+	sha256='f9ebc6ebdb19d769b793c245a736caaeb198c62587f13b25c660c13b4987f959'; \
 	;; \
 	'aarch64') \
 	url="https://github.com/docker/compose/releases/download/v$DOCKER_COMPOSE_VERSION/docker-compose-linux-aarch64"; \
-	sha256='739de570a0adf5eab12830db980f549fb5f44ad6b266e1e43e20f6f9df7cbcca'; \
+	sha256='aa611e811d0ea25897839c404bfb5bf93ce706dc51c500a4457890f5d0606a86'; \
 	;; \
 	*) echo >&2 "warning: unsupported 'docker-compose' architecture ($sysArch); skipping"; exit 0 ;; \
 	esac; \
