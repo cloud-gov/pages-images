@@ -4,7 +4,7 @@
 ARG base_image
 
 FROM golang:1.24 AS gosubuilder
-ENV GOSU_VERSION=1.17
+ENV GOSU_VERSION=1.19
 WORKDIR /go/src/github.com/tianon
 RUN git clone https://github.com/tianon/gosu.git --branch $GOSU_VERSION
 WORKDIR /go/src/github.com/tianon/gosu
