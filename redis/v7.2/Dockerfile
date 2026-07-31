@@ -5,7 +5,7 @@ FROM ${base_image}
 # Set to skip prompt during USG audit
 ENV DEBIAN_FRONTEND=noninteractive
 
-ENV REDIS_VERSION=7.2.12
+ENV REDIS_VERSION=7.2.15
 
 RUN apt-get update -y && apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
