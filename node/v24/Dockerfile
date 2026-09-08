@@ -2,7 +2,7 @@ ARG base_image
 
 FROM ${base_image}
 
-ENV NODE_VERSION=24.15.0
+ENV NODE_VERSION=24.20.0
 ENV YARN_VERSION 1.22.22
 
 # Set to skip prompt during USG audit
@@ -54,6 +54,7 @@ RUN ARCH= OPENSSL_ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   890C08DB8579162FEE0DF9DB8BEAB4DFCF555EF4 \
   C82FA3AE1CBEDC6BE46B9360C43CEC45C17AB93C \
   108F52B48DB57BB0CC439B2997B01419BD92F80A \
+  655F3B5C1FB3FA8D1A0CA6BDE4A7D232B936D2FD \
   A363A499291CBBC940DD62E41F10027AF002F8B0 \
   ; do \
   { gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" && gpg --batch --fingerprint "$key"; } || \
