@@ -22,8 +22,8 @@ RUN set -eux; \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
-ENV PYTHON_VERSION 3.11.15
-ENV PYTHON_SHA256 272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625
+ENV PYTHON_VERSION 3.11.16
+ENV PYTHON_SHA256 91bcdebfdde239a003ae93738a7fce0f9230fee5c4bc2b86f6e6e8c6f98aabe8
 ENV GPG_KEY A035C8C19219BA821ECEA86B64E628F8D684696D
 
 RUN set -eux; \
@@ -32,6 +32,7 @@ RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
 	dpkg-dev \
+	g++ \
 	gcc \
 	gnupg \
 	libbluetooth-dev \
@@ -79,7 +80,7 @@ RUN set -eux; \
 	nproc="$(nproc)"; \
 	EXTRA_CFLAGS="$(dpkg-buildflags --get CFLAGS)"; \
 	LDFLAGS="$(dpkg-buildflags --get LDFLAGS)"; \
-	LDFLAGS="${LDFLAGS:--Wl},--strip-all"; \
+	LDFLAGS="${LDFLAGS:-} -Wl,--strip-all"; \
 	make -j "$nproc" \
 	"EXTRA_CFLAGS=${EXTRA_CFLAGS:-}" \
 	"LDFLAGS=${LDFLAGS:-}" \
@@ -89,7 +90,7 @@ RUN set -eux; \
 	rm python; \
 	make -j "$nproc" \
 	"EXTRA_CFLAGS=${EXTRA_CFLAGS:-}" \
-	"LDFLAGS=${LDFLAGS:--Wl},-rpath='\$\$ORIGIN/../lib'" \
+	"LDFLAGS=${LDFLAGS:-} -Wl,-rpath='\$\$ORIGIN/../lib'" \
 	python \
 	; \
 	make install; \
@@ -128,8 +129,7 @@ RUN set -eux; \
 	--no-cache-dir \
 	--no-compile \
 	'setuptools==79.0.1' \
-	# https://github.com/docker-library/python/issues/1023
-	'wheel<0.46' \
+	'wheel==0.46.3' \
 	; \
 	pip3 --version
 
